@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
 import Navbar from './components/Navbar.vue';
-let theme = ref('dark');
+let theme = ref('light');
 function changeTheme() {
   // switch between light and dark
   theme.value = theme.value === 'light' ? 'dark' : 'light';
