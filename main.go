@@ -20,7 +20,7 @@ func main() {
 		Title:         "chatapp",
 		Width:         1024,
 		Height:        768,
-		DisableResize: true,
+		DisableResize: false,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},
