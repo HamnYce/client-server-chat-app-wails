@@ -46,11 +46,18 @@ func (a *App) ConnectToChatroom() {
 }
 
 func (a *App) DisconnectFromChatroom() {
+	if !a.IsConnected() {
+		return
+	}
 	a.conn.Close()
 	a.conn = nil
+	log.Println("disconnected from server")
 }
 
 func (a *App) SendMsgToChatRoom(msg string) {
+	if !a.IsConnected() {
+		return
+	}
 	a.conn.Write([]byte(msg))
 }
 
@@ -63,9 +70,10 @@ func (a *App) ListenForMessage() {
 	// _, err := a.conn.Read(a.buffer)
 	if err == io.EOF {
 		a.DisconnectFromChatroom()
+		return
 	} else if err != nil {
-		log.Println(err)
 		a.DisconnectFromChatroom()
+		return
 	}
 	log.Println("Received From Server:", string(a.buffer[:n]))
 	a.messages = append(a.messages, g.NewMessageFromByteSlice(a.buffer[:n]))
