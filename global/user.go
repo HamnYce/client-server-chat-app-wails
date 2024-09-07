@@ -22,6 +22,10 @@ func NewUser(conn net.Conn) *User {
 	return &u
 }
 
+func (u *User) SetName(name string) {
+	u.Name = name
+}
+
 func (u *User) ResetBuffer() {
 	u.Buffer = make([]byte, 1024)
 }

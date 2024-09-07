@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	g "chatapp/global"
 	"fmt"
 	"io"
 	"log"
@@ -20,7 +21,9 @@ func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 	buffer := make([]byte, 1024)
 	for {
+		fmt.Print("User Input: ")
 		success := scanner.Scan()
+
 		if !success || scanner.Err() == io.EOF {
 			log.Println("Successfuly closed scanner")
 			break
@@ -28,22 +31,24 @@ func main() {
 			log.Println(err)
 			break
 		}
+
 		if len(scanner.Bytes()) == 0 {
 			log.Println("Empty line received. If you would like to stop the program please press Ctrl+D")
 			continue
 		}
 
-		fmt.Println("Read:", scanner.Text())
+		// fmt.Println("Read:", scanner.Text())
 
 		conn.Write(scanner.Bytes())
 
-		_, err := conn.Read(buffer)
+		n, err := conn.Read(buffer)
 		if err == io.EOF {
 			break
 		} else if err != nil {
 			log.Println(err)
 		}
 
-		fmt.Println("Server:", string(buffer))
+		msg := g.NewMessageFromByteSlice(buffer[:n])
+		fmt.Printf("Sender:%s, Message:%s, Time:%s\n", msg.Message, msg.Sender, msg.Time)
 	}
 }

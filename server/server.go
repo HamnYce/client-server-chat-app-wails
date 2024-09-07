@@ -1,7 +1,7 @@
 package main
 
 import (
-	g "chat-server/global"
+	g "chatapp/global"
 	"io"
 	"log"
 	"net"
@@ -34,11 +34,17 @@ func DisconnectUser(u *g.User) {
 4) and begin listening for connections
 4) pass connections into goroutine handler
 */
+const (
+	HOST = "localhost"
+	PORT = "9090"
+)
+
 func main() {
-	server, err := net.Listen("tcp4", "localhost:9090")
+	server, err := net.Listen("tcp4", HOST+":"+PORT)
 	if err != nil {
 		log.Fatal(err)
 	}
+	log.Println("Server is listening on localhost:9090")
 	for {
 		conn, err := server.Accept()
 		if err != nil {
@@ -62,8 +68,7 @@ func main() {
 */
 func chatroomListener(u *g.User) {
 	for {
-		u.ResetBuffer()
-		_, err := u.Conn.Read(u.Buffer)
+		n, err := u.Conn.Read(u.Buffer)
 		if err == io.EOF {
 			break
 		} else if err != nil {
@@ -71,10 +76,17 @@ func chatroomListener(u *g.User) {
 			break
 		}
 
+		if strings.HasPrefix(string(u.Buffer[:n]), "SET_NAME:") {
+			_, name, _ := strings.Cut(string(u.Buffer[:n]), "SET_NAME:")
+			log.Printf("Set name of %s to %s", u.Conn.RemoteAddr().String(), name)
+			u.SetName(name)
+			continue
+		}
+
 		msg := g.Message{
 			Sender:  u.Name,
-			Message: string(u.Buffer),
-			Time:    time.Now().Format("DateTime"),
+			Message: string(u.Buffer[:n]),
+			Time:    time.Now().Format(time.DateTime),
 		}
 
 		log.Printf("Listener: Received msg %s from %s", msg.Message, u.Name)
@@ -101,6 +113,6 @@ func chatroomWriter(u *g.User) {
 			break
 		}
 		log.Printf("Writer: %+v\n", msg)
-		u.Conn.Write([]byte(msg.Message))
+		u.Conn.Write(msg.ToByteSlice())
 	}
 }
