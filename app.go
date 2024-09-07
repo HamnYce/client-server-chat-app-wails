@@ -1,7 +1,7 @@
 package main
 
 import (
-	"bufio"
+	g "chatapp/global"
 	"context"
 	"io"
 	"log"
@@ -12,8 +12,8 @@ import (
 type App struct {
 	ctx      context.Context
 	conn     net.Conn
-	io       bufio.ReadWriter
-	messages []string
+	messages []g.Message
+	buffer   []byte
 }
 
 // NewApp creates a new App application struct
@@ -26,7 +26,8 @@ func NewApp() *App {
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
 	a.conn = nil
-	a.messages = make([]string, 0)
+	a.messages = make([]g.Message, 0)
+	a.buffer = make([]byte, 1024)
 }
 
 func (a *App) ConnectToChatroom() {
@@ -40,7 +41,6 @@ func (a *App) ConnectToChatroom() {
 		return
 	}
 	a.conn = conn
-	a.io = *bufio.NewReadWriter(bufio.NewReader(a.conn), bufio.NewWriter(a.conn))
 
 	log.Println("Successfully connected to server")
 }
@@ -51,16 +51,14 @@ func (a *App) DisconnectFromChatroom() {
 }
 
 func (a *App) SendMsgToChatRoom(msg string) {
-	a.io.WriteString(msg)
-	a.io.Flush()
+	a.conn.Write([]byte(msg))
 }
 
 func (a *App) ListenForMessage() {
 	if !a.IsConnected() {
 		return
 	}
-	a.io.Reader.Reset(a.conn)
-	str, err := a.io.ReadString(0)
+	n, err := a.conn.Read(a.buffer)
 
 	// _, err := a.conn.Read(a.buffer)
 	if err == io.EOF {
@@ -69,11 +67,11 @@ func (a *App) ListenForMessage() {
 		log.Println(err)
 		a.DisconnectFromChatroom()
 	}
-	log.Println("Received From Server:", str)
-	a.messages = append(a.messages, str)
+	log.Println("Received From Server:", string(a.buffer[:n]))
+	a.messages = append(a.messages, g.NewMessageFromByteSlice(a.buffer[:n]))
 }
 
-func (a *App) GetMessages() []string {
+func (a *App) GetMessages() []g.Message {
 	return a.messages
 }
 

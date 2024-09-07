@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onUnmounted } from 'vue';
 import { ConnectToChatroom, GetMessages, IsConnected, ListenForMessage, SendMsgToChatRoom } from '../../wailsjs/go/main/App';
+import { global as model } from '../../wailsjs/go/models';
 
 let isConnected = ref(false);
 const placeholder = "Empty Chat... try to type something!";
-let messages = ref<string[]>([]);
+let messages = ref<model.Message[]>([]);
 let userMessage = ref("");
 
 const _interval = setInterval(async () => {
@@ -15,6 +16,10 @@ const _interval = setInterval(async () => {
     messages.value = await GetMessages();
   }
 }, 1000);
+
+onUnmounted(() => {
+  clearInterval(_interval);
+});
 
 </script>
 
