@@ -8,20 +8,31 @@ import (
 	"log"
 	"net"
 	"os"
+	"strings"
 )
 
 func main() {
+	// taking in username
+	// setting username at the very beginning to avoid userna
+	fmt.Println("Enter your username")
+	var username string
+	fmt.Scan(&username)
+
 	conn, err := net.Dial("tcp4", "localhost:9090")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer conn.Close()
-	log.Println("Successfully connected to server")
+	conn.Write([]byte("SET_NAME:" + username))
+
+	log.Println("Successfully connected to server, you may begin to send messages")
 
 	scanner := bufio.NewScanner(os.Stdin)
-	buffer := make([]byte, 1024)
+	go ListeningHandler(conn)
+	// TODO: issue with receiving multiple messages
+	// to recreate try joining server sending message then join again, for some reason it isnt workin
+	// another test is to join with 2 clients at the same time and seeing what happens
 	for {
-		fmt.Print("User Input: ")
 		success := scanner.Scan()
 
 		if !success || scanner.Err() == io.EOF {
@@ -40,7 +51,13 @@ func main() {
 		// fmt.Println("Read:", scanner.Text())
 
 		conn.Write(scanner.Bytes())
+	}
+}
 
+func ListeningHandler(conn net.Conn) {
+	buffer := make([]byte, 1024)
+	for {
+		// listens and prints to stdio the messages from the server in parellel with sending
 		n, err := conn.Read(buffer)
 		if err == io.EOF {
 			break
@@ -49,6 +66,6 @@ func main() {
 		}
 
 		msg := g.NewMessageFromByteSlice(buffer[:n])
-		fmt.Printf("Sender:%s, Message:%s, Time:%s\n", msg.Message, msg.Sender, msg.Time)
+		fmt.Printf("%s/%s: %s\n", strings.Split(msg.Time, " ")[1], msg.Sender, msg.Message)
 	}
 }
