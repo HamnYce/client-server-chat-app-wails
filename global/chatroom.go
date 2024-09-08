@@ -11,7 +11,7 @@ import (
 
 const (
 	CHATROOM_PATH = "./chat.csv"
-	HOST          = "localhost"
+	HOST          = "100.124.25.59"
 	PORT          = "9090"
 )
 

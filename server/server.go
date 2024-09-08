@@ -16,7 +16,7 @@ var cr = g.NewChatroom()
 4) pass connections into goroutine handler
 */
 func main() {
-	log.Println("Server is listening on localhost:9090")
+  log.Println("Server is listening on "+g.HOST+":"+g.PORT)
 	for {
 		conn, err := cr.Server.Accept()
 		if err != nil {

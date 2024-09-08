@@ -35,7 +35,7 @@ func (a *App) ConnectToChatroom() {
 		return
 	}
 
-	conn, err := net.Dial("tcp4", "localhost:9090")
+  conn, err := net.Dial("tcp4", g.HOST+":"+g.PORT)
 	if err != nil {
 		conn = nil
 		return
