@@ -1,19 +1,93 @@
-# README
+# ChatApp
 
-## About
+ChatApp is a simple client-server chat application built using Go and Vue.js with Wails. This application allows multiple users to connect to a chatroom and exchange messages in real-time.
 
-This is the official Wails Vue-TS template.
+## Features
 
-You can configure the project by editing `wails.json`. More information about the project settings can be found
-here: https://wails.io/docs/reference/project-config
+- Real-time messaging
+- User-friendly interface
+- Light and dark themes
+- Easy setup and configuration
 
-## Live Development
+## Getting Started
 
-To run in live development mode, run `wails dev` in the project directory. This will run a Vite development
-server that will provide very fast hot reload of your frontend changes. If you want to develop in a browser
-and have access to your Go methods, there is also a dev server that runs on http://localhost:34115. Connect
-to this in your browser, and you can call your Go code from devtools.
+### Prerequisites
 
-## Building
+- Go 1.21 or higher
+- Node.js and npm
+- Wails CLI
 
-To build a redistributable, production mode package, use `wails build`.
+### Installation
+
+1. Clone the repository:
+
+   ```sh
+   git clone https://github.com/yourusername/chatapp.git
+   cd chatapp
+   ```
+
+2. Install Go dependencies:
+
+   ```sh
+   go mod tidy
+   ```
+
+3. Install frontend dependencies:
+
+   ```sh
+   cd frontend
+   npm install
+   ```
+
+### Running the Server
+
+The server should be run in a separate process. One person should act as the host and run the server. Others should change the IP in `global/chatroom.go` to match the host's IP.
+
+1. Open `global/chatroom.go` and set the `HOST` and `PORT` constants:
+
+   ```go
+   const (
+       HOST = "your_host_ip" // everyone should put the hosts IP
+       PORT = "9090"
+   )
+   ```
+
+2. (the host should:) Start the server:
+
+   ```sh
+   go run server/server.go
+   ```
+
+### Running the Client
+
+1. Build the frontend:
+
+   ```sh
+   cd frontend
+   npm run build
+   ```
+
+2. Start the client:
+
+   ```sh
+   wails dev
+   ```
+
+### Usage
+
+1. Open the application in your browser.
+2. Enter a username and connect to the chatroom.
+3. Start sending messages!
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Acknowledgements
+
+- [Wails](https://wails.io/)
+- [Vue.js](https://vuejs.org/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [DaisyUI](https://daisyui.com/)
+
+Enjoy chatting!
